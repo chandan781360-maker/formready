@@ -1,7 +1,7 @@
 Flask
 Pillow
-rembg
+rembg[cpu]
+onnxruntime
 pdf2image
 pypdf
 numpy
-opencv-python
