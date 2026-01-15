@@ -5,3 +5,4 @@ onnxruntime
 pdf2image
 pypdf
 numpy
+gunicorn
