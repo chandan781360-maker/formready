@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<title>PDF / Image Size Increase</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+.page-card {
+    background:#fff;
+    width:460px;
+    margin:80px auto;
+    padding:30px;
+    border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    text-align:center;
+}
+.upload-btn {
+    padding:12px;
+    width:100%;
+    cursor:pointer;
+}
+.option-row {
+    margin:15px 0;
+}
+.option-row input {
+    width:120px;
+    padding:6px;
+    text-align:center;
+}
+.process-btn {
+    margin-top:15px;
+    padding:12px;
+    width:100%;
+    background:#27ae60;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+.process-btn:disabled {
+    opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-card">
+    <h2>PDF / Image Size Increase</h2>
+    <p>Increase file size to meet upload requirements.</p>
+
+    <button class="upload-btn" onclick="fileInput.click()">
+        Upload PDF / Image
+    </button>
+
+    <input type="file" id="fileInput"
+           accept=".pdf,image/*"
+           hidden
+           onchange="fileSelected(this)">
+
+    <div id="fileInfo" style="display:none;margin:15px 0;">
+        <b>File:</b> <span id="infoName"></span><br>
+        <b>Size:</b> <span id="infoSize"></span> KB
+    </div>
+
+    <div class="option-row">
+        Target size (KB):<br>
+        <input type="number" id="targetKb" value="300" min="50">
+    </div>
+
+    <button id="processBtn" class="process-btn"
+            onclick="increase()" disabled>
+        Increase & Download
+    </button>
+
+    <br><br>
+    <a href="/">← Back</a>
+</div>
+
+<script>
+let uploadedFilename = null;
+
+function fileSelected(input) {
+    const f = input.files[0];
+    if (!f) return;
+
+    document.getElementById("fileInfo").style.display = "block";
+    document.getElementById("infoName").innerText = f.name;
+    document.getElementById("infoSize").innerText =
+        (f.size / 1024).toFixed(1);
+
+    const fd = new FormData();
+    fd.append("file", f);
+
+    fetch("/uploads-temp", {
+        method:"POST",
+        body:fd
+    })
+    .then(r=>r.json())
+    .then(d=>{
+        uploadedFilename = d.filename;
+        document.getElementById("processBtn").disabled = false;
+    });
+}
+
+async function increase() {
+    const kb = document.getElementById("targetKb").value;
+
+    const fd = new FormData();
+    fd.append("filename", uploadedFilename);
+    fd.append("target_kb", kb);
+
+    const res = await fetch("/increase-file", {
+        method:"POST",
+        body:fd
+    });
+
+    const data = await res.json();
+
+    window.location.href =
+        "/documents-result?download=" + data.download_url;
+}
+</script>
+
+{% endblock %}

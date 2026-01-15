@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content %}
+<title>PDF / Image Compress</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+.page-card {
+    background: #fff;
+    width: 460px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.upload-btn {
+    padding: 12px;
+    width: 100%;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.option-row {
+    margin: 15px 0;
+}
+
+.option-row input {
+    width: 120px;
+    padding: 6px;
+    text-align: center;
+}
+
+.process-btn {
+    margin-top: 15px;
+    padding: 12px;
+    width: 100%;
+    font-size: 15px;
+    background: #2f80ed;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.process-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 25px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-card">
+    <h2>PDF / Image Compress</h2>
+    <p>Select a PDF or image file and set target size.</p>
+
+    <!-- FILE UPLOAD -->
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+        Upload PDF / Image
+    </button>
+
+    <!-- FILE INFO -->
+    <div id="fileInfo" style="
+        display:none;
+        margin:15px 0;
+        font-size:14px;
+        color:#444;
+        text-align:center;
+    ">
+        <b>File:</b> <span id="infoName"></span><br>
+        <b>Type:</b> <span id="infoType"></span> |
+        <b>Size:</b> <span id="infoSize"></span> KB
+    </div>
+
+    <input type="file" id="fileInput"
+           accept=".pdf,image/*"
+           hidden
+           onchange="fileSelected(this)">
+
+    <!-- OPTIONS -->
+    <div class="option-row">
+        Target size (KB):<br>
+        <input type="number" id="targetKb" value="200" min="10">
+    </div>
+
+    <!-- PROCESS -->
+    <button id="processBtn"
+            class="process-btn"
+            onclick="compress()"
+            disabled>
+        Compress & Download
+    </button>
+
+    <a class="back-link" href="/">← Back</a>
+</div>
+
+<script>
+let uploadedFile = null;
+let uploadedFilename = null;
+
+function fileSelected(input) {
+    if (!input.files.length) return;
+
+    uploadedFile = input.files[0];
+
+    // SHOW FILE INFO
+    document.getElementById("fileInfo").style.display = "block";
+    document.getElementById("infoName").innerText = uploadedFile.name;
+
+    const ext = uploadedFile.name.split(".").pop().toUpperCase();
+    document.getElementById("infoType").innerText = ext;
+
+    const sizeKb = (uploadedFile.size / 1024).toFixed(1);
+    document.getElementById("infoSize").innerText = sizeKb;
+
+    // TEMP UPLOAD
+    const fd = new FormData();
+    fd.append("file", uploadedFile);
+
+    fetch("/uploads-temp", {
+        method: "POST",
+        body: fd
+    })
+    .then(r => r.json())
+    .then(d => {
+        uploadedFilename = d.filename;
+        document.getElementById("processBtn").disabled = false;
+    })
+    .catch(() => alert("Upload failed"));
+}
+
+async function compress() {
+    const kb = document.getElementById("targetKb").value;
+    if (!kb || kb < 10) {
+        alert("Enter valid target KB");
+        return;
+    }
+
+    const btn = document.getElementById("processBtn");
+    btn.disabled = true;
+    btn.innerText = "Processing…";
+
+    const fd = new FormData();
+    fd.append("filename", uploadedFilename);
+    fd.append("target_kb", kb);
+
+    const res = await fetch("/compress-file", {
+        method: "POST",
+        body: fd
+    });
+
+    const data = await res.json();
+
+    if (!data.download_url) {
+        alert("Compression failed");
+        btn.disabled = false;
+        btn.innerText = "Compress & Download";
+        return;
+    }
+
+    if (!data.achieved) {
+        alert("Best possible size achieved: " + data.final_kb + " KB");
+    }
+
+    window.location.href =
+        "/documents-result?download=" + data.download_url;
+}
+</script>
+{% endblock %}

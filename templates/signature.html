@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cropper.css') }}">
+{% endblock %}
+
+{% block content %}
+<h3>Signature Preview</h3>
+
+{% if filename %}
+
+<!-- PREVIEW -->
+<div class="preview-container signature-preview">
+    <img id="signaturePreview" src="/uploads/{{ filename }}">
+</div>
+
+<!-- FILE INFO -->
+<div class="box">
+    <b>File type:</b> {{ type|upper }} &nbsp;&nbsp;
+    <b>Size:</b> {{ size_kb }} KB
+    <br>
+    <b>Height × Width:</b> {{ height }} px × {{ width }} px
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="tools-row" id="actionButtons">
+    <button onclick="startCrop()">✂ Crop</button>
+    <button onclick="removeBg()">🎨 Remove BG</button>
+</div>
+
+<div class="tools-row">
+    <button id="applyCropBtn" onclick="applyCrop()">✔ Apply Crop</button>
+</div>
+
+<hr>
+
+<!-- SIZE CONTROLS -->
+<div class="tools-row">
+    Height:
+    <input id="heightInput" placeholder="150">
+    Width:
+    <input id="widthInput" placeholder="400">
+</div>
+
+<div class="tools-row">
+    Max Size (KB):
+    <input id="maxKb" placeholder="50">
+    Format:
+    <select id="format">
+        <option value="png">PNG (Recommended)</option>
+        <option value="jpg">JPG</option>
+    </select>
+</div>
+
+<button class="proceed-btn" onclick="proceed()">Proceed</button>
+
+{% else %}
+<p>No signature uploaded</p>
+{% endif %}
+
+<div class="action-row">
+    <a href="/" class="btn-secondary">⬆ Upload another</a>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay">
+    <div class="loader-box">
+        <div class="spinner"></div>
+        <p>Processing… please wait</p>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+
+<script>
+let cropper;
+let finalImageBlob = null;
+
+const signaturePreview = document.getElementById("signaturePreview");
+const loader = document.getElementById("loadingOverlay");
+const actionButtons = document.getElementById("actionButtons");
+const applyCropBtn = document.getElementById("applyCropBtn");
+
+const widthInput = document.getElementById("widthInput");
+const heightInput = document.getElementById("heightInput");
+const maxKb = document.getElementById("maxKb");
+const format = document.getElementById("format");
+
+/* LOAD IMAGE */
+window.addEventListener("load", async () => {
+    if (signaturePreview) {
+        finalImageBlob = await fetch(signaturePreview.src).then(r => r.blob());
+    }
+});
+
+/* LOADER HELPERS */
+function showLoader(){ loader.style.display = "flex"; }
+function hideLoader(){ loader.style.display = "none"; }
+
+/* CROP */
+function startCrop() {
+    if (cropper) return;
+    cropper = new Cropper(signaturePreview, {
+        viewMode: 1,
+        autoCropArea: 0.9,
+        background: false,
+        zoomable: false
+    });
+    actionButtons.style.display = "none";
+    applyCropBtn.style.display = "inline-flex";
+}
+
+function applyCrop() {
+    const canvas = cropper.getCroppedCanvas({ fillColor: "#fff" });
+    canvas.toBlob(blob => {
+        finalImageBlob = blob;
+        signaturePreview.src = URL.createObjectURL(blob);
+    }, "image/png");
+
+    cropper.destroy();
+    cropper = null;
+    actionButtons.style.display = "flex";
+    applyCropBtn.style.display = "none";
+}
+
+/* REMOVE BG → TRANSPARENT (DEFAULT) */
+async function removeBg() {
+    showLoader();
+    try {
+        const fd = new FormData();
+        fd.append("image_file", finalImageBlob, "signature.png");
+           fd.append("bg", "white");   // ✅ safer default
+
+
+        const res = await fetch("/signature-bg-process", {
+            method: "POST",
+            body: fd
+        });
+        const data = await res.json();
+
+        signaturePreview.src = data.image;
+        finalImageBlob = await fetch(data.image).then(r => r.blob());
+    } catch {
+        alert("Remove background failed");
+    }
+    hideLoader();
+}
+
+/* PROCEED → REDIRECT TO RESULT PAGE */
+function proceed() {
+    const fd = new FormData();
+    fd.append("image_file", finalImageBlob, "signature.png");
+    fd.append("width", widthInput.value);
+    fd.append("height", heightInput.value);
+    fd.append("kb", maxKb.value || 50);
+    fd.append("format", format.value);
+
+    showLoader();
+
+    fetch("/photo-preview", { method: "POST", body: fd })
+    .then(r => r.json())
+    .then(d => {
+        window.location.href =
+            `/result?preview=${encodeURIComponent(d.preview_url)}` +
+            `&download=${encodeURIComponent(d.download_url)}` +
+            `&width=${d.width}` +
+            `&height=${d.height}` +
+            `&size=${d.size_kb}` +
+            `&type=${d.type}`;
+    })
+    .catch(() => alert("Processing failed"))
+    .finally(hideLoader);
+}
+</script>
+
+{% endblock %}

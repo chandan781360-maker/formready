@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if width|int > height|int %}
+    <h3>Processed Signature Preview</h3>
+{% else %}
+    <h3>Processed Photo Preview</h3>
+{% endif %}
+
+
+<div class="preview-container {{ 'signature-preview' if width|int > height|int else 'photo-preview' }}">
+    <img src="{{ preview_url }}" alt="Processed preview">
+</div>
+
+<div class="box">
+    <b>File type:</b> {{ type|upper }} &nbsp;&nbsp;
+    <b>Size:</b> {{ size_kb }} KB
+    <br>
+    <b>Height × Width:</b> {{ height }} px × {{ width }} px
+</div>
+
+<div class="tools-row">
+    <a href="{{ download_url }}" class="btn-primary" download>
+        ⬇ Download
+    </a>
+</div>
+
+<div class="action-row">
+    <a href="/" class="btn-secondary">
+        ⬆ Upload another
+    </a>
+</div>
+{% endblock %}

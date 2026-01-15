@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= TOOLS SECTION ================= -->
+<div class="container">
+
+    <!-- PHOTO -->
+    <div class="card">
+        <div class="card-title">📷 Photo Tools</div>
+
+        <form action="/photo" method="post" enctype="multipart/form-data">
+            <button type="button" onclick="this.nextElementSibling.click()">
+                Upload Photo
+            </button>
+            <input type="file" name="file" accept="image/*" hidden required
+                   onchange="this.form.submit()">
+        </form>
+
+        <ul>
+            <li>Remove background</li>
+            <li>Crop photo</li>
+            <li>Resize photo (height × width)</li>
+            <li>Reduce photo size (KB limit)</li>
+            <li>Convert format (JPG / PNG)</li>
+            <li>Unit conversion (px / cm / inch / mm)</li>
+        </ul>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="card">
+        <div class="card-title">✍️ Signature Tools</div>
+
+        <form action="/signature" method="post" enctype="multipart/form-data">
+            <button type="button" onclick="this.nextElementSibling.click()">
+                Upload Signature
+            </button>
+            <input type="file" name="file" accept="image/*" hidden required
+                   onchange="this.form.submit()">
+        </form>
+
+        <ul>
+            <li>Remove background (transparent / white)</li>
+            <li>Crop signature</li>
+            <li>Resize signature (height × width)</li>
+            <li>Reduce signature size (KB limit)</li>
+            <li>Convert format (PNG / JPG)</li>
+            <li>Unit conversion (px / cm / inch / mm)</li>
+        </ul>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="card doc-card">
+        <div class="card-title">📄 Document Tools</div>
+
+        <a class="doc-item" href="/doc-image-pdf">
+            <span class="doc-icon">🖼️</span>
+            <div class="doc-text">
+                <div class="doc-title">
+                    Image (JPG / JPEG / PNG) → PDF
+                </div>
+                <div class="doc-desc">
+                    Combine images into one PDF
+                </div>
+            </div>
+        </a>
+
+        <a class="doc-item" href="/doc-pdf-image">
+            <span class="doc-icon">📄</span>
+            <div class="doc-text">
+                <div class="doc-title">
+                    PDF → Image (JPG / JPEG / PNG)
+                </div>
+                <div class="doc-desc">
+                    Convert each PDF page into images
+                </div>
+            </div>
+        </a>
+
+        <a class="doc-item" href="/doc-compress">
+            <span class="doc-icon">🗜️</span>
+            <div class="doc-text">
+                <div class="doc-title">
+                    PDF / Image Compress
+                </div>
+                <div class="doc-desc">
+                    100KB / 200KB / 500KB
+                </div>
+            </div>
+        </a>
+
+        <a class="doc-item" href="/doc-increase">
+            <span class="doc-icon">📈</span>
+            <div class="doc-text">
+                <div class="doc-title">
+                    PDF / Image Size Increase
+                </div>
+                <div class="doc-desc">
+                    Increase file size to required KB
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
+<!-- ================= END TOOLS SECTION ================= -->
+
+
+<hr class="section-divider">
+
+
+<!-- ================= SEO CONTENT ================= -->
+<section class="content-wrapper">
+
+    <h1>FormReady – Prepare Files for Online Forms Without Rejection</h1>
+
+    <p>
+        Online forms for government services, job applications, admissions, and KYC processes
+        often reject uploads due to strict requirements. Incorrect image size, wrong dimensions,
+        background issues, or file size limits are the most common reasons for rejection.
+        FormReady is built to solve these exact problems.
+    </p>
+
+    <h2>Why Online Forms Reject Photos, Signatures, and Documents</h2>
+
+    <p>
+        Most portals enforce automated validation. Even a small mismatch can result in upload failure.
+        Common rejection reasons include:
+    </p>
+
+    <ul>
+        <li>Photo or signature size exceeding allowed KB</li>
+        <li>Incorrect height and width</li>
+        <li>Background not white or transparent</li>
+        <li>Signature not properly cropped or horizontal</li>
+        <li>PDF file size outside allowed limits</li>
+    </ul>
+
+    <h2>How FormReady Helps in Real-World Scenarios</h2>
+
+    <p>
+        FormReady is designed specifically for real form submission needs. Whether you are applying
+        for a government exam, uploading documents for bank verification, or submitting job
+        application forms, FormReady helps prepare files exactly as required.
+    </p>
+
+    <ul>
+        <li>Resize passport and ID photos to exact dimensions</li>
+        <li>Prepare signatures with transparent or white background</li>
+        <li>Compress PDFs to 100KB, 200KB, or 500KB</li>
+        <li>Increase file size when minimum KB is required</li>
+        <li>Convert images to PDF and PDFs to images</li>
+    </ul>
+
+    <h2>Who Should Use FormReady</h2>
+
+    <ul>
+        <li>Students applying for exams or admissions</li>
+        <li>Job seekers uploading photos and signatures</li>
+        <li>Bank and KYC applicants</li>
+        <li>Government form applicants</li>
+        <li>Anyone facing upload rejection issues</li>
+    </ul>
+
+</section>
+<!-- ================= END SEO CONTENT ================= -->
+
+
+<!-- ================= FAQ SECTION ================= -->
+<section class="content-wrapper faq-section">
+
+    <h2>Frequently Asked Questions (FAQ)</h2>
+
+    <h3>Is FormReady free to use?</h3>
+    <p>
+        Yes. FormReady offers free tools to resize photos, signatures, and documents for online forms.
+    </p>
+
+    <h3>Why does my photo get rejected on government portals?</h3>
+    <p>
+        Rejection usually happens due to incorrect file size, dimensions, background color,
+        or unsupported format. FormReady helps fix these issues.
+    </p>
+
+    <h3>Are my uploaded files safe?</h3>
+    <p>
+        Yes. Files are processed automatically and temporarily. They are not manually reviewed
+        and are deleted after processing.
+    </p>
+
+    <h3>Can I resize my signature for online forms?</h3>
+    <p>
+        Yes. The Signature Tool is optimized for horizontal signatures with transparent or
+        white backgrounds.
+    </p>
+
+    <h3>Does FormReady work on mobile devices?</h3>
+    <p>
+        Yes. FormReady works on both desktop and mobile browsers.
+    </p>
+
+</section>
+<!-- ================= END FAQ SECTION ================= -->
+
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block content %}
+<title>Document Ready</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+/* CARD */
+.result-card {
+    background: #fff;
+    width: 480px;
+    margin: 90px auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* META INFO */
+.meta {
+    font-size: 14px;
+    color: #444;
+    margin: 10px 0 20px;
+}
+
+/* BUTTON ROW */
+.btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-row a {
+    flex: 1;
+    text-decoration: none;
+}
+
+/* PROFESSIONAL ACTION BUTTONS */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    width: 100%;
+    padding: 12px 16px;
+
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+/* PRIMARY – DOWNLOAD */
+.btn-primary {
+    background: #2f80ed;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #256ad1;
+}
+
+/* SECONDARY – COMPRESS */
+.btn-secondary {
+    background: #f4f6f8;
+    color: #333;
+    border: 1px solid #cfd6df;
+}
+
+.btn-secondary:hover {
+    background: #e9edf2;
+}
+
+/* TERTIARY – UPLOAD AGAIN */
+.btn-tertiary {
+    background: #fff;
+    color: #2f80ed;
+    border: 1px solid #cfd6df;
+}
+
+.btn-tertiary:hover {
+    background: #f0f4ff;
+}
+
+/* DISABLED */
+.action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* COMPRESS PANEL */
+.compress-panel {
+    display: none;
+    margin-top: 25px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.compress-panel input {
+    width: 120px;
+    padding: 6px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="result-card" id="resultCard">
+    <h2>Document Ready</h2>
+
+    <div class="meta">
+        <b>File:</b> {{ filename }}<br>
+        <b>Type:</b> {{ file_type }} |
+        <b>Size:</b> {{ size_kb }} KB
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="btn-row">
+        <a href="/download/{{ filename }}">
+            <button class="action-btn btn-primary">
+                ⬇ Download
+            </button>
+        </a>
+
+        <button class="action-btn btn-secondary" onclick="showCompress()">
+            🗜 Compress
+        </button>
+
+        <a href="/">
+    <button class="action-btn btn-tertiary" type="button">
+        ⬆ Upload Again
+    </button>
+</a>
+
+    </div>
+
+    <!-- COMPRESS PANEL -->
+    <div id="compressPanel" class="compress-panel">
+        <p><b>Compress {{ file_type }}</b></p>
+
+        Target size (KB):
+        <input type="number" id="targetKb" placeholder="e.g. 100" min="10">
+        <br><br>
+
+        <button id="compressBtn"
+                class="action-btn btn-primary"
+                onclick="compressFile()">
+            Proceed to Download
+        </button>
+    </div>
+
+    <br>
+    <a href="/">← Home</a>
+</div>
+<script>
+function showCompress() {
+    const panel = document.getElementById("compressPanel");
+    panel.style.display = "block";
+    panel.scrollIntoView({ behavior: "smooth" });
+}
+
+async function compressFile() {
+    const kb = document.getElementById("targetKb").value;
+
+    if (!kb || kb < 10) {
+        alert("Enter a valid target size in KB");
+        return;
+    }
+
+    const btn = document.getElementById("compressBtn");
+    btn.disabled = true;
+    btn.innerText = "Processing…";
+
+    try {
+        const fd = new FormData();
+        fd.append("filename", "{{ filename }}");
+        fd.append("target_kb", kb);
+
+        const res = await fetch("/compress-file", {
+            method: "POST",
+            body: fd
+        });
+
+        const data = await res.json();
+
+        if (!data.download_url) {
+            throw new Error("Invalid server response");
+        }
+
+        // Inform user if exact target not reached
+        if (!data.achieved) {
+            alert(
+              "Best possible size achieved: " +
+              data.final_kb + " KB"
+            );
+        }
+
+        // Redirect to result page
+        window.location.href =
+            "/documents-result?download=" + data.download_url;
+
+    } catch (err) {
+        console.error(err);
+        alert("Compression failed. Please try again.");
+        btn.disabled = false;
+        btn.innerText = "Proceed to Download";
+    }
+}
+</script>
+{% endblock %}

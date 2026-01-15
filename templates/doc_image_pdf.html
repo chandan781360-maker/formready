@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+<title>Image → PDF</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+.page-card {
+    background: #fff;
+    width: 460px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.upload-btn {
+    padding: 12px;
+    width: 100%;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-card">
+    <h2>Image → PDF</h2>
+    <p>Select one or more images to convert into a single PDF.</p>
+
+    <!-- UPLOAD -->
+    <button id="uploadBtn" class="upload-btn" onclick="fileInput.click()">
+        Upload Images
+    </button>
+
+    <input type="file" id="fileInput" multiple accept="image/*" hidden
+           onchange="autoProcess(this)">
+
+    <a class="back-link" href="/">← Back</a>
+
+</div>
+
+<!-- LOADING OVERLAY WITH % -->
+<div id="loadingOverlay" style="
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+">
+    <div style="
+        background:#fff;
+        padding:30px;
+        border-radius:10px;
+        text-align:center;
+        width:220px;
+    ">
+        <svg width="80" height="80">
+            <circle cx="40" cy="40" r="35"
+                    stroke="#eee" stroke-width="6" fill="none"/>
+            <circle id="progressCircle"
+                    cx="40" cy="40" r="35"
+                    stroke="#2f80ed" stroke-width="6"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-dasharray="220"
+                    stroke-dashoffset="220"/>
+        </svg>
+
+        <div id="progressText"
+             style="font-weight:bold;margin-top:-55px;font-size:16px;">
+            0%
+        </div>
+
+        <p style="margin-top:20px;font-size:14px;">
+            Processing… please wait
+        </p>
+    </div>
+</div>
+
+<script>
+let progress = 0;
+let timer = null;
+
+/* PROGRESS FUNCTIONS */
+function showProgress() {
+    progress = 0;
+    updateProgress(0);
+    document.getElementById("loadingOverlay").style.display = "flex";
+
+    timer = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 6;
+            updateProgress(progress);
+        }
+    }, 300);
+}
+
+function finishProgress() {
+    clearInterval(timer);
+    updateProgress(100);
+}
+
+function updateProgress(val) {
+    val = Math.floor(Math.min(val, 100));
+    const offset = 220 - (val / 100) * 220;
+    document.getElementById("progressCircle").style.strokeDashoffset = offset;
+    document.getElementById("progressText").innerText = val + "%";
+}
+
+/* AUTO PROCESS AFTER UPLOAD */
+async function autoProcess(input) {
+    const files = input.files;
+    if (!files.length) return;
+
+    // Hide upload button
+    document.getElementById("uploadBtn").style.display = "none";
+
+    showProgress();
+
+    const fd = new FormData();
+    for (let f of files) fd.append("files", f);
+
+    const res = await fetch("/images-to-pdf", {
+        method: "POST",
+        body: fd
+    });
+
+    const data = await res.json();
+    finishProgress();
+
+    window.location.href =
+        "/documents-result?download=" + data.download_url;
+}
+</script>
+
+{% endblock %}

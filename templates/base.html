@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>{{ title or "FormReady – Photo, Signature & Document Resize Tool" }}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- SEO META -->
+    <meta name="description" content="Resize photos, signatures and documents to exact size and KB required for government forms, job applications and online portals.">
+    <meta name="keywords" content="passport photo resize, signature resize kb, compress pdf online, photo size for government form">
+    <meta name="author" content="FormReady">
+
+    <!-- GLOBAL STYLES -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- PAGE-SPECIFIC STYLES -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="layout">
+
+<div class="layout-content">
+
+<header class="app-header">
+    <div class="app-title">
+  <span>FormReady</span> – Resizing Tool
+</div>
+
+    {% if show_subtitle %}
+    <div class="app-subtitle">
+        Prepare form-ready photos, signatures and documents
+    </div>
+    {% endif %}
+</header>
+
+<main class="page-content">
+    {% block content %}{% endblock %}
+</main>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-container">
+
+    <div class="footer-column">
+  <h4>Tools</h4>
+  <ul>
+  <li><a href="/">Photo Tool</a></li>
+<li><a href="/">Signature Tool</a></li>
+<li><a href="/">Document Tools</a></li>
+<li><a href="/doc-image-pdf">Image to PDF</a></li>
+<li><a href="/doc-compress">PDF Compress</a></li>
+
+  </ul>
+</div>
+
+
+    <div class="footer-column">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/privacy">Privacy Policy</a></li>
+        <li><a href="/terms">Terms & Conditions</a></li>
+        <li><a href="/disclaimer">Disclaimer</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="mailto:support@formready.in">Email Support</a></li>
+        <li><a href="/feedback">Feedback</a></li>
+        <li><a href="/advertise">Advertise With Us</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 FormReady. All rights reserved.</p>
+    <p>FormReady is not affiliated with any government authority.</p>
+  </div>
+</footer>
+
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+Flask
+Pillow
+rembg
+pdf2image
+pypdf
+numpy
+opencv-python
