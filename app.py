@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, send_from_directory, jsonify, send_file
 from PIL import Image
-from rembg import remove
+#from rembg import remove
 from pdf2image import convert_from_bytes
 import os
 import uuid
@@ -124,47 +124,14 @@ def signature():
 # =========================================================
 # BACKGROUND REMOVAL (PHOTO + SIGNATURE)
 # =========================================================
-
 @app.route("/bg-process", methods=["POST"])
 def bg_process():
-    cleanup_uploads()
+    return jsonify({"error": "Background removal temporarily disabled"}), 503
 
-    file = request.files.get("image_file")
-    bg_color = request.form.get("bg", "transparent")
-
-    fg = Image.open(io.BytesIO(remove(file.read()))).convert("RGBA")
-
-    if bg_color == "white":
-        bg = Image.new("RGBA", fg.size, (255, 255, 255, 255))
-        bg.paste(fg, (0, 0), fg)
-        fg = bg.convert("RGB")
-
-    elif bg_color == "blue":
-        bg = Image.new("RGBA", fg.size, (0, 102, 204, 255))
-        bg.paste(fg, (0, 0), fg)
-        fg = bg.convert("RGB")
-
-    elif bg_color == "transparent":
-        cleaned = []
-        for r, g, b, a in fg.getdata():
-            if a < 120:
-                cleaned.append((0, 0, 0, 0))
-            else:
-                cleaned.append((0, 0, 0, 255))
-        fg.putdata(cleaned)
-
-    buf = io.BytesIO()
-    fg.save(buf, "PNG", optimize=True)
-    encoded = base64.b64encode(buf.getvalue()).decode()
-
-    return jsonify({"image": f"data:image/png;base64,{encoded}"})
-
-
-# 🔥 FIX 404 FOR SIGNATURE BG
 @app.route("/signature-bg-process", methods=["POST"])
 def signature_bg_process():
-    cleanup_uploads()
-    return bg_process()
+    return jsonify({"error": "Background removal temporarily disabled"}), 503
+
 
 # =========================================================
 # FINAL PHOTO / SIGNATURE PROCESS
@@ -293,4 +260,5 @@ def disclaimer(): return render_template("disclaimer.html")
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
 
