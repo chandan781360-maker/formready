@@ -253,6 +253,21 @@ def terms(): return render_template("terms.html")
 
 @app.route("/disclaimer")
 def disclaimer(): return render_template("disclaimer.html")
+# =========================================================
+# RESULT PAGE (REQUIRED)
+# =========================================================
+
+@app.route("/result")
+def result():
+    return render_template(
+        "result.html",
+        preview_url=request.args.get("preview"),
+        download_url=request.args.get("download"),
+        width=request.args.get("width"),
+        height=request.args.get("height"),
+        size_kb=request.args.get("size"),
+        type=request.args.get("type")
+    )
 
 # =========================================================
 # RUN
@@ -260,5 +275,6 @@ def disclaimer(): return render_template("disclaimer.html")
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
 
 
